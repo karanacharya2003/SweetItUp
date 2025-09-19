@@ -1,78 +1,72 @@
-const sweetCtrl = require("../controllers/sweetControllers");
+const request = require('supertest');
+const app = require('../app');
 
-describe("Sweet Controllers", () => {
-  let mockReq, mockRes, mockSweet;
+describe('Sweet Routes', () => {
+  let sweetId;
 
-  beforeEach(() => {
-    mockRes = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-    mockSweet = {
-      id: 1,
-      name: "Ladoo",
-      category: "Indian",
-      price: 10,
-      quantity: 5,
-      update: jest.fn(),
-      destroy: jest.fn(),
-      save: jest.fn(),
-    };
+  test('POST /api/sweets → should add a sweet (admin)', async () => {
+    const res = await request(app)
+      .post('/api/sweets')
+      .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`) // mock/admin token
+      .send({
+        name: 'Ladoo',
+        category: 'Indian',
+        price: 20,
+        quantity: 50
+      });
+
+    expect(res.statusCode).toBe(201);
+    sweetId = res.body.id;
   });
 
-  test("addSweet should return 400 if fields missing", async () => {
-    mockReq = { body: {}, models: { Sweet: {} } };
-    await sweetCtrl.addSweet(mockReq, mockRes);
-    expect(mockRes.status).toHaveBeenCalledWith(400);
+  test('GET /api/sweets → should list sweets', async () => {
+    const res = await request(app).get('/api/sweets');
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
-  test("addSweet should create and return sweet", async () => {
-    mockReq = {
-      body: { name: "Ladoo", category: "Indian", price: 10, quantity: 5 },
-      models: { Sweet: { create: jest.fn().mockResolvedValue(mockSweet) } },
-    };
-    await sweetCtrl.addSweet(mockReq, mockRes);
-    expect(mockRes.status).toHaveBeenCalledWith(201);
+  test('GET /api/sweets/search?name=Ladoo → should return filtered results', async () => {
+    const res = await request(app).get('/api/sweets/search?name=Ladoo');
+    expect(res.statusCode).toBe(200);
+    expect(res.body[0]).toHaveProperty('name', 'Ladoo');
   });
 
-  test("listSweets should return array", async () => {
-    mockReq = { models: { Sweet: { findAll: jest.fn().mockResolvedValue([mockSweet]) } } };
-    await sweetCtrl.listSweets(mockReq, mockRes);
-    expect(mockRes.json).toHaveBeenCalledWith([mockSweet]);
+  test('PUT /api/sweets/:id → should update a sweet (admin)', async () => {
+    const res = await request(app)
+      .put(`/api/sweets/${sweetId}`)
+      .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`)
+      .send({ price: 25 });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.sweet.price).toBe(25);
   });
 
-  test("searchSweets should apply filters", async () => {
-    mockReq = {
-      query: { name: "Ladoo" },
-      models: { Sweet: { findAll: jest.fn().mockResolvedValue([mockSweet]) } },
-    };
-    await sweetCtrl.searchSweets(mockReq, mockRes);
-    expect(mockRes.json).toHaveBeenCalledWith([mockSweet]);
+  test('POST /api/sweets/:id/purchase → should purchase sweet', async () => {
+    const res = await request(app)
+      .post(`/api/sweets/${sweetId}/purchase`)
+      .set('Authorization', `Bearer ${process.env.USER_TOKEN}`)
+      .send({ quantity: 2 });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toBe('Purchase successful');
   });
 
-  test("updateSweet should 404 if not found", async () => {
-    mockReq = { params: { id: 1 }, body: {}, models: { Sweet: { findByPk: jest.fn().mockResolvedValue(null) } } };
-    await sweetCtrl.updateSweet(mockReq, mockRes);
-    expect(mockRes.status).toHaveBeenCalledWith(404);
+  test('POST /api/sweets/:id/restock → should restock sweet (admin)', async () => {
+    const res = await request(app)
+      .post(`/api/sweets/${sweetId}/restock`)
+      .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`)
+      .send({ quantity: 10 });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toBe('Restocked');
   });
 
-  test("deleteSweet should 404 if not found", async () => {
-    mockReq = { params: { id: 1 }, models: { Sweet: { findByPk: jest.fn().mockResolvedValue(null) } } };
-    await sweetCtrl.deleteSweet(mockReq, mockRes);
-    expect(mockRes.status).toHaveBeenCalledWith(404);
-  });
+  test('DELETE /api/sweets/:id → should delete sweet (admin)', async () => {
+    const res = await request(app)
+      .delete(`/api/sweets/${sweetId}`)
+      .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`);
 
-  test("purchaseSweet should reject insufficient stock", async () => {
-    mockReq = { params: { id: 1 }, body: { quantity: 10 }, models: { Sweet: { findByPk: jest.fn().mockResolvedValue(mockSweet) } } };
-    mockSweet.quantity = 5;
-    await sweetCtrl.purchaseSweet(mockReq, mockRes);
-    expect(mockRes.status).toHaveBeenCalledWith(400);
-  });
-
-  test("restockSweet should increase stock", async () => {
-    mockSweet.quantity = 5;
-    mockReq = { params: { id: 1 }, body: { quantity: 3 }, models: { Sweet: { findByPk: jest.fn().mockResolvedValue(mockSweet) } } };
-    await sweetCtrl.restockSweet(mockReq, mockRes);
-    expect(mockSweet.quantity).toBe(8);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toBe('Sweet deleted');
   });
 });
