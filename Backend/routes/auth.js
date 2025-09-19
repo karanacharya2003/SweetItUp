@@ -1,11 +1,27 @@
-const express = require('express');
-const router = express.Router();
-// const { register, login } = require('../controllers/authController');
-const {register,login} = require('../controllers/authControllers')
+const request = require("supertest");
+const express = require("express");
+const authRouter = require("../routes/authRoutes");
 
+const app = express();
+app.use(express.json());
+app.use("/auth", authRouter);
 
-router.post('/register', register);
-router.post('/login', login);
+describe("Auth Routes", () => {
+  test("POST /auth/register should register a user", async () => {
+    const res = await request(app)
+      .post("/auth/register")
+      .send({ username: "testuser", password: "secret" });
 
+    expect(res.status).toBe(201); // expect 201 Created
+    expect(res.body).toHaveProperty("message", "User registered successfully");
+  });
 
-module.exports = router;
+  test("POST /auth/login should login a user", async () => {
+    const res = await request(app)
+      .post("/auth/login")
+      .send({ username: "testuser", password: "secret" });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("token");
+  });
+});
