@@ -7,18 +7,51 @@ The application provides a seamless user experience for customers to browse, sea
 
 ---
 
+
+
 ## ✨ Key Features
 
-- **🔐 User Authentication** – Secure user registration and login system using **JWT (JSON Web Tokens)**.  
-- **👥 Role-Based Access Control** – Differentiates between **users** and **administrators**.  
-- **🛍 Dynamic Product Catalog** – A beautifully designed shop page to view available sweets.  
-- **🔎 Advanced Filtering & Search** – Search by name and filter by category (with **debounced input**).  
-- **🛒 Shopping Cart** – Add sweets, review orders, and proceed to checkout.  
-- **📦 Inventory Management** – Admin dashboard to add, update, delete, and restock sweets.  
-- **📑 Pagination & Preloading** – Smooth navigation with preloading on hover.  
-- **🎨 Modern UI/UX** – Clean, playful, fully responsive design with **toast notifications**.  
+- **🔐 User Authentication** – Secure user registration and login system using **JWT**.  
+- **👥 Role-Based Access Control** – Differentiates between **regular users** and **administrators**.  
+- **🛍 Dynamic Product Catalog** – A beautifully designed shop page for browsing all sweets.  
+- **🔎 Advanced Filtering & Search** – Debounced search by name and filtering by category.  
+- **🛒 Shopping Cart** – Fully functional cart with a modern checkout experience.  
+- **📦 Inventory Management** – Admin dashboard to **add, update, delete, and restock** sweets.  
+- **⚡ Performance Optimized** – Includes pagination, client-side caching, and preloading.  
+- **🎨 Modern UI/UX** – Clean, playful, and fully responsive design with **toast notifications**.  
 
 ---
+
+## 🛠 Technical Features
+
+This project uses **modern web development techniques** to ensure a **robust, scalable, and performant** application.
+
+### ⚙️ React Context API for Global State
+- Eliminates prop-drilling by centralizing state with **React Context**.  
+- **AuthContext** – Manages authentication status, token, and user data.  
+- **CartContext** – Manages shopping cart state (items, quantities, etc.).  
+- **CacheContext** – Provides cache invalidation to keep data consistent between shop and admin pages.  
+
+### ⌛ Debouncing for Search
+- Implements a custom `useDebounce` hook.  
+- Waits **500ms** after typing stops before sending search requests.  
+- Reduces server load and improves performance.  
+
+### ⚡ Client-Side Caching & Preloading
+- Caches previously fetched shop pages for **instant reloads**.  
+- **Prefetches next/previous pages** on hover for near-instant navigation.  
+
+### 🔔 Toast Notifications
+- Uses **react-hot-toast** for user feedback (e.g., *"Item added to cart"*, *"Order placed"*).  
+- Provides a **non-blocking, visually appealing** alternative to alerts.  
+
+### 🔐 Role-Based Access Control (RBAC)
+- **ProtectedRoute** component enforces route-level security.  
+- UI adapts to user roles (e.g., **Admin-only links** appear conditionally).  
+- Prevents unauthorized access to sensitive pages like `/admin`.  
+
+---
+
 
 ## 📸 Application Screenshots
 
@@ -150,7 +183,7 @@ This project was developed with the assistance of an **AI programming partner**,
 
 The frontend is a modern **React application built with Vite**. The `src` directory is organized by **feature-based structure** for clarity and maintainability.
 
-![Landing Page](assets/Frotend.png)
+![Landing Page](assets/Frontend.png)
 
 ---
 
