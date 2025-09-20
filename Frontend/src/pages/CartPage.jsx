@@ -1,8 +1,8 @@
-// src/pages/CartPage.jsx
 import React from 'react';
 import { useCart } from '../context/CartContext';
 import { purchaseSweet as purchaseSweetApi } from '../api/sweets';
 import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const CartPage = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
@@ -12,22 +12,30 @@ const CartPage = () => {
 
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
-      alert("Your cart is empty.");
+      toast.error("Your cart is empty.");
       return;
     }
     
-    try {
-      // This simulates a checkout by purchasing each item individually
-      for (const item of cartItems) {
-        await purchaseSweetApi(item.id, item.quantity);
+    // Create an array of promises for each purchase
+    const purchasePromises = cartItems.map(item => 
+      purchaseSweetApi(item.id, item.quantity)
+    );
+
+    toast.promise(
+      Promise.all(purchasePromises),
+      {
+        loading: 'Placing your order...',
+        success: () => {
+          clearCart();
+          navigate('/shop');
+          return 'Checkout successful! Your order has been placed.';
+        },
+        error: (err) => {
+          // Attempt to get a more specific error message from the API response
+          return err.response?.data?.message || 'An error occurred during checkout.';
+        }
       }
-      alert('Checkout successful! Your order has been placed.');
-      clearCart();
-      navigate('/shop');
-    } catch (error) {
-      console.error("Checkout failed:", error);
-      alert(error.response?.data?.message || 'An error occurred during checkout.');
-    }
+    );
   };
 
   if (cartItems.length === 0) {
@@ -57,7 +65,7 @@ const CartPage = () => {
         {/* Cart Items List */}
         <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6 space-y-4">
           {cartItems.map(item => (
-            <div key={item.id} className="flex items-center justify-between py-4 border-b border-gray-200">
+            <div key={item.id} className="flex items-center justify-between py-4 border-b border-gray-200 last:border-b-0">
               <div className="flex items-center gap-4">
                 <img 
                   src={`https://placehold.co/100x100/a78bfa/ffffff?text=${item.name.replace(/\s/g, '+')}`} 

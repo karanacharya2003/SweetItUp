@@ -1,6 +1,6 @@
-// src/components/SweetCard.jsx
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import toast from 'react-hot-toast';
 
 const SweetCard = ({ sweet }) => {
   const { addToCart } = useCart();
@@ -9,15 +9,15 @@ const SweetCard = ({ sweet }) => {
 
   const handleAddToCart = () => {
     if (quantity <= 0) {
-        alert("Please enter a valid quantity.");
+        toast.error("Please enter a valid quantity.");
         return;
     }
     if (quantity > sweet.quantity) {
-      alert(`Only ${sweet.quantity} kg available in stock.`);
+      toast.error(`Only ${sweet.quantity} kg available in stock.`);
       return;
     }
     addToCart(sweet, quantity);
-    alert(`${quantity} kg of ${sweet.name} added to cart!`);
+    toast.success(`${quantity} kg of ${sweet.name} added to cart!`);
     setQuantity(1);
   };
 
