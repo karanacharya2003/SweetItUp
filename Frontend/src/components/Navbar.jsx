@@ -26,7 +26,7 @@ const Navbar = () => {
       <div className="container mx-auto px-6">
         <div className="flex justify-between items-center">
           <Link to="/" className="text-3xl font-extrabold text-gray-800" onClick={() => setIsMobileMenuOpen(false)}>
-            Sweetopia
+            Sweet-It-Up
           </Link>
 
           <div className="hidden md:flex items-center space-x-8 text-gray-700 font-bold">

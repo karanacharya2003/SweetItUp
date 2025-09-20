@@ -27,7 +27,7 @@ const RegisterPage = () => {
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl shadow-lg">
         <div className="text-center">
             <h2 className="text-4xl font-extrabold text-gray-800">Create an Account</h2>
-            <p className="text-gray-600 mt-2">Join the Sweetopia family!</p>
+            <p className="text-gray-600 mt-2">Join the Sweet-It-Up family!</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && <p className="text-red-600 bg-red-100 p-3 rounded-lg text-center text-sm font-semibold">{error}</p>}
