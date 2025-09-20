@@ -2,13 +2,13 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
 import { purchaseSweet as purchaseSweetApi } from '../api/sweets';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const CartPage = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
   const navigate = useNavigate();
 
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2);
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
@@ -17,56 +17,96 @@ const CartPage = () => {
     }
     
     try {
-      // In a real app, you would have a single checkout endpoint.
-      // Here, we simulate by calling purchase for each item.
+      // This simulates a checkout by purchasing each item individually
       for (const item of cartItems) {
         await purchaseSweetApi(item.id, item.quantity);
       }
       alert('Checkout successful! Your order has been placed.');
       clearCart();
-      navigate('/'); // Redirect to home page
+      navigate('/shop');
     } catch (error) {
       console.error("Checkout failed:", error);
       alert(error.response?.data?.message || 'An error occurred during checkout.');
     }
   };
 
+  if (cartItems.length === 0) {
+    return (
+      <div className="container mx-auto px-6 py-16 text-center">
+        <div className="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-lg">
+          <h1 className="text-4xl font-extrabold text-gray-800">Your Cart is Empty</h1>
+          <p className="mt-4 text-gray-600">Looks like you haven't added any sweets yet. Let's fix that!</p>
+          <Link 
+            to="/shop" 
+            className="mt-6 inline-block bg-teal-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-teal-600 transition-transform transform hover:scale-105"
+          >
+            Explore Sweets
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-center mb-8">Your Shopping Cart</h1>
-      {cartItems.length === 0 ? (
-        <p className="text-center text-gray-500">Your cart is empty.</p>
-      ) : (
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white shadow-md rounded-lg p-6">
-            {cartItems.map(item => (
-              <div key={item.id} className="flex items-center justify-between py-4 border-b">
+    <div className="container mx-auto px-6 py-12">
+      <div className="text-center mb-12">
+        <h1 className="text-5xl font-extrabold text-gray-800">Review Your Cart</h1>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-12">
+        {/* Cart Items List */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6 space-y-4">
+          {cartItems.map(item => (
+            <div key={item.id} className="flex items-center justify-between py-4 border-b border-gray-200">
+              <div className="flex items-center gap-4">
+                <img 
+                  src={`https://placehold.co/100x100/a78bfa/ffffff?text=${item.name.replace(/\s/g, '+')}`} 
+                  alt={item.name} 
+                  className="rounded-lg w-16 h-16 object-cover" 
+                />
                 <div>
-                  <h2 className="text-xl font-semibold">{item.name}</h2>
-                  <p className="text-gray-600">
+                  <h2 className="text-lg font-bold text-gray-800">{item.name}</h2>
+                  <p className="text-sm text-gray-500">
                     {item.quantity} kg @ ₹{item.price}/kg
                   </p>
                 </div>
-                <div className="flex items-center gap-4">
-                   <p className="text-lg font-bold">₹{(item.price * item.quantity).toFixed(2)}</p>
-                   <button onClick={() => removeFromCart(item.id)} className="text-red-500 hover:text-red-700">Remove</button>
-                </div>
               </div>
-            ))}
-            <div className="flex justify-end items-center mt-6">
-              <span className="text-2xl font-bold">Total: ₹{total}</span>
+              <div className="flex items-center gap-6">
+                 <p className="text-lg font-bold text-gray-900">₹{(item.price * item.quantity).toFixed(2)}</p>
+                 <button onClick={() => removeFromCart(item.id)} className="text-red-500 hover:text-red-700 font-semibold text-sm">Remove</button>
+              </div>
             </div>
-            <div className="flex justify-end mt-4 gap-4">
-              <button onClick={clearCart} className="px-6 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Clear Cart</button>
-              <button onClick={handleCheckout} className="px-6 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700">
-                Proceed to Checkout
-              </button>
+          ))}
+        </div>
+
+        {/* Order Summary */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-28">
+            <h2 className="text-2xl font-extrabold text-gray-800 border-b pb-4">Order Summary</h2>
+            <div className="space-y-4 my-4">
+              <div className="flex justify-between text-gray-600">
+                <span>Subtotal</span>
+                <span>₹{subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Shipping</span>
+                <span>Free</span>
+              </div>
             </div>
+            <div className="flex justify-between text-xl font-bold text-gray-900 border-t pt-4">
+              <span>Total</span>
+              <span>₹{subtotal.toFixed(2)}</span>
+            </div>
+            <button 
+              onClick={handleCheckout} 
+              className="mt-6 w-full bg-teal-500 text-white font-bold text-lg py-3 px-6 rounded-full shadow-lg hover:bg-teal-600 transition-transform transform hover:scale-105"
+            >
+              Proceed to Checkout
+            </button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
-
 export default CartPage;

@@ -1,39 +1,52 @@
+// src/middleware/auth.js
 const jwt = require('jsonwebtoken');
-const config = require('../config');
-// ❌ REMOVE this line: const db = require('../models');
+const config = require('../config'); // <-- 1. IMPORT THE CONFIG FILE
 
-async function authenticate(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized' });
+function authenticate(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token == null) {
+    return res.sendStatus(401);
   }
 
-  const token = authHeader.split(' ')[1];
-  try {
-    const payload = jwt.verify(token, config.jwt.secret);
+  // --- DEBUGGING LINES ---
+  console.log('--- MIDDLEWARE: VERIFYING TOKEN ---');
+  console.log('SECRET KEY USED:', config.jwt.secret);
+  console.log('TOKEN RECEIVED:', token);
+  // --- END DEBUGGING ---
+
+  // 2. USE THE CORRECT SECRET FROM THE CONFIG FILE
+  jwt.verify(token, config.jwt.secret, (err, user) => {
+    if (err) {
+      console.error('TOKEN VERIFICATION FAILED:', err.message);
+      console.log('---------------------------\n');
+      return res.sendStatus(403); // Forbidden (invalid token)
+    }
     
-    // ✅ Get the initialized User model from the request object
-    const { User } = req.models;
-    
-    // Now User.findByPk is a function
-    const user = await User.findByPk(payload.id);
-    
-    if (!user) return res.status(401).json({ message: 'Unauthorized' });
-    
-    req.user = user; // attach the full user instance to the request
+    console.log('TOKEN VERIFIED SUCCESSFULLY');
+    console.log('---------------------------\n');
+    req.user = user;
     next();
-  } catch (err) {
-    // The error message here can be improved for clarity
-    console.error("Authentication error:", err.message);
-    // "Invalid token" is a good generic message to send back to the client
-    return res.status(401).json({ message: 'Invalid token' });
-  }
+  });
 }
 
-function requireAdmin(req, res, next) {
-  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
-  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden: admin only' });
-  next();
+// authorize function remains the same
+function authorize(allowedRoles) {
+  return (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return res.sendStatus(403);
+    }
+    const hasRole = allowedRoles.includes(req.user.role);
+    if (hasRole) {
+      next();
+    } else {
+      res.sendStatus(403);
+    }
+  };
 }
 
-module.exports = { authenticate, requireAdmin };
+module.exports = {
+  authenticate,
+  authorize,
+};

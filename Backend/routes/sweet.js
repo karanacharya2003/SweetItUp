@@ -1,26 +1,33 @@
+// src/routes/sweet.js
 const express = require('express');
 const router = express.Router();
-const sweetCtrl = require('../controllers/sweetControllers');
-const { authenticate, requireAdmin } = require('../middleware/auth');
+const sweetController = require('../controllers/sweetControllers');
+const { authenticate, authorize } = require('../middleware/auth');
 
+console.log("✅ sweet.js router file has been loaded.");
 
-// --- Public Routes ---
-// Anyone can view the list of sweets or search for them.
-router.get('/', sweetCtrl.listSweets);
-router.get('/search', sweetCtrl.searchSweets);
+// GET /api/sweets -> List all sweets with pagination
+router.get('/', sweetController.listSweets);
 
+// GET /api/sweets/search -> Search sweets with pagination
+router.get('/search', sweetController.searchSweets);
 
-// --- Authenticated User Routes ---
-// Any logged-in user can purchase a sweet.
-router.post('/:id/purchase', authenticate, sweetCtrl.purchaseSweet);
+// GET /api/sweets/categories -> Get all unique categories
+router.get('/categories', sweetController.getUniqueCategories);
 
+// POST /api/sweets -> Add a new sweet (Admin only)
+router.post('/', authenticate, authorize(['admin']), sweetController.addSweet);
 
-// --- Admin Only Routes ---
-// Only logged-in admins can add, update, delete, or restock sweets.
-router.post('/', [authenticate, requireAdmin], sweetCtrl.addSweet);
-router.put('/:id', [authenticate, requireAdmin], sweetCtrl.updateSweet);
-router.delete('/:id', [authenticate, requireAdmin], sweetCtrl.deleteSweet);
-router.post('/:id/restock', [authenticate, requireAdmin], sweetCtrl.restockSweet);
+// PUT /api/sweets/:id -> Update a sweet (Admin only)
+router.put('/:id', authenticate, authorize(['admin']), sweetController.updateSweet);
 
+// DELETE /api/sweets/:id -> Delete a sweet (Admin only)
+router.delete('/:id', authenticate, authorize(['admin']), sweetController.deleteSweet);
+
+// POST /api/sweets/:id/purchase -> Purchase a sweet
+router.post('/:id/purchase', authenticate, sweetController.purchaseSweet);
+
+// POST /api/sweets/:id/restock -> Restock a sweet (Admin only)
+router.post('/:id/restock', authenticate, authorize(['admin']), sweetController.restockSweet);
 
 module.exports = router;
