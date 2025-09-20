@@ -7,9 +7,12 @@ const models = require('./models'); // <-- 1. IMPORT YOUR MODELS OBJECT
 
 const authRoutes = require("./routes/auth");
 const sweetsRoutes = require("./routes/sweet");
+const cors = require('cors');
+
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // Create the SINGLE, CORRECTLY CONFIGURED Sequelize connection
 const sequelize = new Sequelize(

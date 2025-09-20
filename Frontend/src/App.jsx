@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AdminDashboard from './pages/AdminDashboard'; // You would create this page
 import useAuth from './hooks/useAuth';
+import CartPage from './pages/CartPage';
 
 // A component to protect routes
 const ProtectedRoute = ({ children, adminOnly = false }) => {
@@ -27,6 +28,8 @@ function App() {
       <Navbar />
       <main>
         <Routes>
+             <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+          <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
           <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
