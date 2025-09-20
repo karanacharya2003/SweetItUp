@@ -43,7 +43,7 @@ The application provides a seamless user experience for customers to browse, sea
 1. **Navigate to Backend Directory:**
    ```bash
    cd Backend
-````
+```
 
 2. **Install Dependencies:**
 
