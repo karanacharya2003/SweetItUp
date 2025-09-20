@@ -150,16 +150,7 @@ This project was developed with the assistance of an **AI programming partner**,
 
 The frontend is a modern **React application built with Vite**. The `src` directory is organized by **feature-based structure** for clarity and maintainability.
 
-/Frontend
-└── src/
-    ├── api/          # Centralizes all Axios API calls to the backend
-    ├── components/   # Reusable React components (Navbar, SweetCard, etc.)
-    ├── context/      # Global state management using React Context
-    ├── hooks/        # Custom React hooks (e.g., useDebounce)
-    ├── pages/        # Top-level components for each page/route
-    ├── App.jsx       # Main application component with routing
-    └── main.jsx      # Entry point of the React application
-
+![Landing Page](assets/Frotend.png)
 
 ---
 
@@ -167,14 +158,7 @@ The frontend is a modern **React application built with Vite**. The `src` direct
 
 The backend is a **Node.js + Express** application using **Sequelize ORM**. It follows the **MVC (Model-View-Controller)** design pattern for scalability and maintainability.
 
-/Backend
-└── src/
-    ├── controllers/  # Business logic for each route
-    ├── middleware/   # Authentication & authorization middleware
-    ├── models/       # Sequelize model definitions for DB tables
-    ├── routes/       # Express router definitions for API endpoints
-    ├── config.js     # Central configuration (DB + JWT secrets)
-    └── index.js      # Entry point of the Node.js server
+![Landing Page](assets/Backend.png)
 
 
 ---
