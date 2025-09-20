@@ -1,13 +1,12 @@
 // src/controllers/sweetController.js
-
 const { Op } = require('sequelize');
 
-// Add a new sweet - NO CHANGES
+// Add a new sweet
 async function addSweet(req, res) {
   const { Sweet } = req.models;
   const { name, category, price, quantity } = req.body;
   if (!name || !category || price == null || quantity == null) {
-    return res.status(400).json({ message: 'name, category, price, and quantity required' });
+    return res.status(400).json({ message: 'Name, category, price, and quantity are required' });
   }
   try {
     const sweet = await Sweet.create({ name, category, price, quantity });
@@ -18,36 +17,34 @@ async function addSweet(req, res) {
   }
 }
 
-// ✅ UPDATED: List all sweets with pagination
+// List all sweets with pagination
 async function listSweets(req, res) {
   const { Sweet } = req.models;
   try {
-    // 1. Get page and limit from query, with defaults
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const offset = (page - 1) * limit;
 
-    // 2. Use findAndCountAll to get sweets for the page AND the total count
+    console.log(`➡️  Fetching sweets - Page: ${page}, Limit: ${limit}`);
+
     const { count, rows } = await Sweet.findAndCountAll({
       limit: limit,
       offset: offset,
       order: [['createdAt', 'DESC']],
     });
 
-    // 3. Send back the paginated data
     return res.json({
       sweets: rows,
       totalPages: Math.ceil(count / limit),
       currentPage: page,
     });
-  } catch (err)
- {
+  } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });
   }
 }
 
-// ✅ UPDATED: Search sweets with pagination
+// Search sweets with pagination
 async function searchSweets(req, res) {
   const { Sweet } = req.models;
   try {
@@ -56,9 +53,11 @@ async function searchSweets(req, res) {
     const limit = parseInt(req.query.limit) || 20;
     const offset = (page - 1) * limit;
 
+    console.log(`➡️  Searching sweets - Page: ${page}, Limit: ${limit}, Query:`, req.query);
+    
     const where = {};
     if (name) where.name = { [Op.like]: `%${name}%` };
-    if (category) where.category = category;
+    if (category && category !== 'All') where.category = category;
     if (minPrice || maxPrice) {
       where.price = {};
       if (minPrice) where.price[Op.gte] = minPrice;
@@ -82,15 +81,30 @@ async function searchSweets(req, res) {
   }
 }
 
-// Update sweet - NO CHANGES
+// Get all unique categories
+async function getUniqueCategories(req, res) {
+  const { Sweet } = req.models;
+  try {
+    const categories = await Sweet.findAll({
+      attributes: ['category'],
+      group: ['category'],
+    });
+    const categoryNames = categories.map(c => c.category);
+    return res.json(categoryNames);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+}
+
+// Update a sweet
 async function updateSweet(req, res) {
   const { Sweet } = req.models;
   try {
     const { id } = req.params;
-    const { name, category, price, quantity } = req.body;
     const sweet = await Sweet.findByPk(id);
     if (!sweet) return res.status(404).json({ message: 'Not found' });
-    await sweet.update({ name, category, price, quantity });
+    await sweet.update(req.body);
     return res.json({ message: 'Sweet updated', sweet });
   } catch (err) {
     console.error(err);
@@ -98,7 +112,7 @@ async function updateSweet(req, res) {
   }
 }
 
-// Delete sweet - NO CHANGES
+// Delete a sweet
 async function deleteSweet(req, res) {
   const { Sweet } = req.models;
   try {
@@ -113,10 +127,10 @@ async function deleteSweet(req, res) {
   }
 }
 
-// Purchase sweet - NO CHANGES
+// Purchase a sweet
 async function purchaseSweet(req, res) {
   const { Sweet } = req.models;
-  const id = req.params.id;
+  const { id } = req.params;
   const { quantity } = req.body;
   const qty = parseInt(quantity || 1, 10);
   if (qty <= 0) return res.status(400).json({ message: 'Invalid quantity' });
@@ -133,10 +147,10 @@ async function purchaseSweet(req, res) {
   }
 }
 
-// Restock sweet - NO CHANGES
+// Restock a sweet
 async function restockSweet(req, res) {
   const { Sweet } = req.models;
-  const id = req.params.id;
+  const { id } = req.params;
   const { quantity } = req.body;
   const qty = parseInt(quantity || 0, 10);
   if (qty <= 0) return res.status(400).json({ message: 'Invalid quantity' });
@@ -156,6 +170,7 @@ module.exports = {
   addSweet,
   listSweets,
   searchSweets,
+  getUniqueCategories,
   updateSweet,
   deleteSweet,
   purchaseSweet,

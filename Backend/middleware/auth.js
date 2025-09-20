@@ -1,36 +1,47 @@
 // src/middleware/auth.js
 const jwt = require('jsonwebtoken');
+const config = require('../config'); // <-- 1. IMPORT THE CONFIG FILE
 
-// Middleware to check if the user is logged in
 function authenticate(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer TOKEN"
+  const token = authHeader && authHeader.split(' ')[1];
 
   if (token == null) {
-    return res.sendStatus(401); // Unauthorized
+    return res.sendStatus(401);
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  // --- DEBUGGING LINES ---
+  console.log('--- MIDDLEWARE: VERIFYING TOKEN ---');
+  console.log('SECRET KEY USED:', config.jwt.secret);
+  console.log('TOKEN RECEIVED:', token);
+  // --- END DEBUGGING ---
+
+  // 2. USE THE CORRECT SECRET FROM THE CONFIG FILE
+  jwt.verify(token, config.jwt.secret, (err, user) => {
     if (err) {
+      console.error('TOKEN VERIFICATION FAILED:', err.message);
+      console.log('---------------------------\n');
       return res.sendStatus(403); // Forbidden (invalid token)
     }
-    req.user = user; // Attach user payload to the request object
+    
+    console.log('TOKEN VERIFIED SUCCESSFULLY');
+    console.log('---------------------------\n');
+    req.user = user;
     next();
   });
 }
 
-// Middleware to check if the user has a specific role (e.g., 'admin')
+// authorize function remains the same
 function authorize(allowedRoles) {
   return (req, res, next) => {
     if (!req.user || !req.user.role) {
-      return res.sendStatus(403); // Forbidden
+      return res.sendStatus(403);
     }
-
     const hasRole = allowedRoles.includes(req.user.role);
     if (hasRole) {
-      next(); // Role is allowed, proceed to the next function
+      next();
     } else {
-      res.sendStatus(403); // Forbidden
+      res.sendStatus(403);
     }
   };
 }
