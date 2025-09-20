@@ -1,11 +1,9 @@
-// src/controllers/sweetControllers.js
+// src/controllers/sweetController.js
 
-// ❌ REMOVE this line: const db = require('../models');
 const { Op } = require('sequelize');
 
-// Add a new sweet
+// Add a new sweet - NO CHANGES
 async function addSweet(req, res) {
-  // ✅ Get the initialized Sweet model from the request object
   const { Sweet } = req.models;
   const { name, category, price, quantity } = req.body;
   if (!name || !category || price == null || quantity == null) {
@@ -20,23 +18,44 @@ async function addSweet(req, res) {
   }
 }
 
-// List all sweets
+// ✅ UPDATED: List all sweets with pagination
 async function listSweets(req, res) {
   const { Sweet } = req.models;
   try {
-    const sweets = await Sweet.findAll();
-    return res.json(sweets);
-  } catch (err) {
+    // 1. Get page and limit from query, with defaults
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
+    // 2. Use findAndCountAll to get sweets for the page AND the total count
+    const { count, rows } = await Sweet.findAndCountAll({
+      limit: limit,
+      offset: offset,
+      order: [['createdAt', 'DESC']],
+    });
+
+    // 3. Send back the paginated data
+    return res.json({
+      sweets: rows,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+    });
+  } catch (err)
+ {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });
   }
 }
 
-// Search sweets
+// ✅ UPDATED: Search sweets with pagination
 async function searchSweets(req, res) {
   const { Sweet } = req.models;
   try {
     const { name, category, minPrice, maxPrice } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
     const where = {};
     if (name) where.name = { [Op.like]: `%${name}%` };
     if (category) where.category = category;
@@ -45,15 +64,25 @@ async function searchSweets(req, res) {
       if (minPrice) where.price[Op.gte] = minPrice;
       if (maxPrice) where.price[Op.lte] = maxPrice;
     }
-    const sweets = await Sweet.findAll({ where });
-    return res.json(sweets);
+    
+    const { count, rows } = await Sweet.findAndCountAll({ 
+        where,
+        limit,
+        offset 
+    });
+
+    return res.json({
+        sweets: rows,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });
   }
 }
 
-// Update sweet
+// Update sweet - NO CHANGES
 async function updateSweet(req, res) {
   const { Sweet } = req.models;
   try {
@@ -69,7 +98,7 @@ async function updateSweet(req, res) {
   }
 }
 
-// Delete sweet
+// Delete sweet - NO CHANGES
 async function deleteSweet(req, res) {
   const { Sweet } = req.models;
   try {
@@ -84,7 +113,7 @@ async function deleteSweet(req, res) {
   }
 }
 
-// Purchase sweet
+// Purchase sweet - NO CHANGES
 async function purchaseSweet(req, res) {
   const { Sweet } = req.models;
   const id = req.params.id;
@@ -104,7 +133,7 @@ async function purchaseSweet(req, res) {
   }
 }
 
-// Restock sweet
+// Restock sweet - NO CHANGES
 async function restockSweet(req, res) {
   const { Sweet } = req.models;
   const id = req.params.id;

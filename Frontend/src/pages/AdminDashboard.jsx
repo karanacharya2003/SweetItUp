@@ -8,7 +8,7 @@ import {
   restockSweet
 } from '../api/sweets';
 
-// A reusable modal component for the form
+// SweetFormModal component remains unchanged.
 const SweetFormModal = ({ sweet, mode, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     name: sweet?.name || '',
@@ -59,30 +59,48 @@ const SweetFormModal = ({ sweet, mode, onClose, onSave }) => {
 };
 
 
-// The main Admin Dashboard component
 const AdminDashboard = () => {
   const [sweets, setSweets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
+  const [modalMode, setModalMode] = useState('add');
   const [currentSweet, setCurrentSweet] = useState(null);
+
+  // New: State for pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchSweets = async () => {
     setLoading(true);
     try {
-      const response = await getAllSweets();
-      setSweets(response.data);
+      const response = await getAllSweets(currentPage); // Fetch the current page
+      
+      const sweetsData = Array.isArray(response.data) ? response.data : response.data.sweets;
+      const totalPagesData = response.data.totalPages || 1;
+
+      setSweets(Array.isArray(sweetsData) ? sweetsData : []);
+      setTotalPages(totalPagesData);
+
     } catch (error) {
       console.error("Failed to fetch sweets:", error);
       alert("Could not load sweets data.");
+      setSweets([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Update useEffect to re-fetch when currentPage changes
   useEffect(() => {
     fetchSweets();
-  }, []);
+  }, [currentPage]);
+
+  // New: Function to handle page changes
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= totalPages) {
+        setCurrentPage(newPage);
+    }
+  };
 
   const handleOpenModal = (mode, sweet = null) => {
     setModalMode(mode);
@@ -105,7 +123,7 @@ const AdminDashboard = () => {
         alert('Sweet updated successfully!');
       }
       handleCloseModal();
-      fetchSweets(); // Refresh the list
+      fetchSweets();
     } catch (error) {
       console.error('Failed to save sweet:', error);
       alert(error.response?.data?.message || 'An error occurred.');
@@ -117,7 +135,7 @@ const AdminDashboard = () => {
       try {
         await deleteSweet(sweetId);
         alert('Sweet deleted successfully!');
-        fetchSweets(); // Refresh the list
+        fetchSweets();
       } catch (error) {
         console.error('Failed to delete sweet:', error);
         alert(error.response?.data?.message || 'Could not delete sweet.');
@@ -131,7 +149,7 @@ const AdminDashboard = () => {
       try {
         await restockSweet(sweetId, { quantity });
         alert('Stock updated!');
-        fetchSweets(); // Refresh the list
+        fetchSweets();
       } catch (error) {
         console.error('Failed to restock:', error);
         alert(error.response?.data?.message || 'Restock failed.');
@@ -181,6 +199,27 @@ const AdminDashboard = () => {
           </tbody>
         </table>
       </div>
+
+      {/* New: Pagination controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button 
+            onClick={() => handlePageChange(currentPage - 1)} 
+            disabled={currentPage === 1} 
+            className="px-4 py-2 bg-pink-500 text-white rounded-md disabled:bg-gray-300"
+          >
+            Previous
+          </button>
+          <span className="font-semibold">Page {currentPage} of {totalPages}</span>
+          <button 
+            onClick={() => handlePageChange(currentPage + 1)} 
+            disabled={currentPage === totalPages} 
+            className="px-4 py-2 bg-pink-500 text-white rounded-md disabled:bg-gray-300"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {isModalOpen && (
         <SweetFormModal

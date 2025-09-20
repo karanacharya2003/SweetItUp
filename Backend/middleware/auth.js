@@ -1,39 +1,41 @@
+// src/middleware/auth.js
 const jwt = require('jsonwebtoken');
-const config = require('../config');
-// ❌ REMOVE this line: const db = require('../models');
 
-async function authenticate(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized' });
+// Middleware to check if the user is logged in
+function authenticate(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer TOKEN"
+
+  if (token == null) {
+    return res.sendStatus(401); // Unauthorized
   }
 
-  const token = authHeader.split(' ')[1];
-  try {
-    const payload = jwt.verify(token, config.jwt.secret);
-    
-    // ✅ Get the initialized User model from the request object
-    const { User } = req.models;
-    
-    // Now User.findByPk is a function
-    const user = await User.findByPk(payload.id);
-    
-    if (!user) return res.status(401).json({ message: 'Unauthorized' });
-    
-    req.user = user; // attach the full user instance to the request
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.sendStatus(403); // Forbidden (invalid token)
+    }
+    req.user = user; // Attach user payload to the request object
     next();
-  } catch (err) {
-    // The error message here can be improved for clarity
-    console.error("Authentication error:", err.message);
-    // "Invalid token" is a good generic message to send back to the client
-    return res.status(401).json({ message: 'Invalid token' });
-  }
+  });
 }
 
-function requireAdmin(req, res, next) {
-  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
-  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden: admin only' });
-  next();
+// Middleware to check if the user has a specific role (e.g., 'admin')
+function authorize(allowedRoles) {
+  return (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return res.sendStatus(403); // Forbidden
+    }
+
+    const hasRole = allowedRoles.includes(req.user.role);
+    if (hasRole) {
+      next(); // Role is allowed, proceed to the next function
+    } else {
+      res.sendStatus(403); // Forbidden
+    }
+  };
 }
 
-module.exports = { authenticate, requireAdmin };
+module.exports = {
+  authenticate,
+  authorize,
+};
