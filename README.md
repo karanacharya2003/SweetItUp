@@ -166,6 +166,7 @@ This project was developed with the assistance of an **AI programming partner**,
 * Proposed the use of a **shared CacheContext** to elegantly handle a **state synchronization bug**.
 * Encouraged **separation of concerns** and **clean architecture** practices.
 
+🔸 **Note:** While  **Gemini** was used for  most of the boilerplate code generation only to fasten the process and coming over the redundant reimplementation of stuffs, all **ideation, system design decisions, and core logic** were purely driven by me.
 ---
 
 ## 🚀 Tech Stack
@@ -195,5 +196,11 @@ The backend is a **Node.js + Express** application using **Sequelize ORM**. It f
 
 
 ---
+
+# Testing Status
+
+Not very well versed with testing, but took help of Google Jules do it .
+There is a separate branch of Jules making test cases for the project and testing them on its server.
+
 
 
