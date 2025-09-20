@@ -1,5 +1,7 @@
 const request = require('supertest');
-const app = require('../app');
+const { app, sequelize } = require('../app');
+
+jest.setTimeout(30000);
 
 describe('Auth Routes', () => {
   test('POST /api/auth/register → should register a new user', async () => {

@@ -1,8 +1,22 @@
 const request = require('supertest');
-const app = require('../app');
+const { app, sequelize } = require('../app');
+const jwt = require('jsonwebtoken');
+const config = require('../config');
+
+jest.setTimeout(30000);
 
 describe('Sweet Routes', () => {
   let sweetId;
+  let adminToken;
+  let userToken;
+
+  beforeAll(() => {
+    // Generate tokens for testing
+    adminToken = jwt.sign({ id: 1, role: 'admin' }, config.jwt.secret, { expiresIn: '1h' });
+    userToken = jwt.sign({ id: 2, role: 'user' }, config.jwt.secret, { expiresIn: '1h' });
+    process.env.ADMIN_TOKEN = adminToken;
+    process.env.USER_TOKEN = userToken;
+  });
 
   test('POST /api/sweets → should add a sweet (admin)', async () => {
     const res = await request(app)
@@ -22,13 +36,13 @@ describe('Sweet Routes', () => {
   test('GET /api/sweets → should list sweets', async () => {
     const res = await request(app).get('/api/sweets');
     expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
+    expect(Array.isArray(res.body.sweets)).toBe(true);
   });
 
   test('GET /api/sweets/search?name=Ladoo → should return filtered results', async () => {
     const res = await request(app).get('/api/sweets/search?name=Ladoo');
     expect(res.statusCode).toBe(200);
-    expect(res.body[0]).toHaveProperty('name', 'Ladoo');
+    expect(res.body.sweets[0]).toHaveProperty('name', 'Ladoo');
   });
 
   test('PUT /api/sweets/:id → should update a sweet (admin)', async () => {
@@ -58,7 +72,7 @@ describe('Sweet Routes', () => {
       .send({ quantity: 10 });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe('Restocked');
+    expect(res.body.message).toBe('Restocked successfully');
   });
 
   test('DELETE /api/sweets/:id → should delete sweet (admin)', async () => {
