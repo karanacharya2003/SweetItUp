@@ -8,13 +8,13 @@ The application provides a seamless user experience for customers to browse, sea
 ---
 
 Working links-
-http://sweet-it-up.vercel.app
-Login as admin- kri@gmail.com
-Password- kri
+http://sweet-it-up.vercel.app .
+Login as admin- kri@gmail.com .
+Password- kri .
 
-(PS: If the Login fails, Render free account is to blame.)
+(PS: If the Login fails, Render free account is to blame.) 
 
-Drive Link- https://drive.google.com/file/d/1Shef1ZUwLYMSSa7FmqQCfBvVpRzIEbJ9/view?usp=sharing
+Drive Link- https://drive.google.com/file/d/1Shef1ZUwLYMSSa7FmqQCfBvVpRzIEbJ9/view?usp=sharing .
 Working Video
 
 
@@ -67,7 +67,7 @@ This project uses **modern web development techniques** to ensure a **robust, sc
 
 ## 📸 Application Screenshots
 
-1. **Landing Page** – Elegant welcome page inviting users to explore the shop. ![Landing Page](assets/Frontend.png)
+1. **Landing Page** – Elegant welcome page inviting users to explore the shop. ![Landing Page](assets/Land.png)
 2. **Shop Page** – Search, category filters, and responsive product cards.   ![Landing Page](assets/ShopPage.png)
 3. **Shopping Cart** – Clean order summary before checkout.              ![Landing Page](assets/Cart.png)
 4. **Admin Dashboard** – Powerful inventory management interface.          ![Landing Page](assets/AdminDashboar.png)
