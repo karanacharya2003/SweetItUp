@@ -75,7 +75,7 @@ This project uses **modern web development techniques** to ensure a **robust, sc
 <img src="assets/Cart.png" width="600"/>
 
 4. **Admin Dashboard** – Powerful inventory management interface.  
-<img src="assets/AdminDashboar.png" width="600"/>
+<img src="assets/AdminDashboard.png" width="600"/>
 
 5. **Login/Signup** –  
 <img src="assets/Login.png" width="600"/>
