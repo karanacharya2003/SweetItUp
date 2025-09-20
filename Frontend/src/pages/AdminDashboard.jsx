@@ -7,8 +7,8 @@ import {
   deleteSweet,
   restockSweet
 } from '../api/sweets';
+import { useCache } from '../context/CacheContext.jsx';
 
-// The modal for adding/editing sweets, styled to match
 const SweetFormModal = ({ sweet, mode, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     name: sweet?.name || '',
@@ -58,8 +58,8 @@ const SweetFormModal = ({ sweet, mode, onClose, onSave }) => {
   );
 };
 
-
 const AdminDashboard = () => {
+  const { invalidateCache } = useCache();
   const [sweets, setSweets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -108,8 +108,9 @@ const AdminDashboard = () => {
       } else {
         await updateSweet(currentSweet.id, formData);
       }
+      invalidateCache();
       handleCloseModal();
-      fetchSweets(); // Refresh the list
+      fetchSweets();
     } catch (error) {
       console.error('Failed to save sweet:', error);
     }
@@ -119,7 +120,8 @@ const AdminDashboard = () => {
     if (window.confirm('Are you sure you want to delete this sweet?')) {
       try {
         await deleteSweet(sweetId);
-        fetchSweets(); // Refresh the list
+        invalidateCache();
+        fetchSweets();
       } catch (error) {
         console.error('Failed to delete sweet:', error);
       }
@@ -131,15 +133,13 @@ const AdminDashboard = () => {
     if (quantity && !isNaN(quantity) && Number(quantity) > 0) {
       try {
         await restockSweet(sweetId, { quantity });
-        fetchSweets(); // Refresh the list
+        invalidateCache();
+        fetchSweets();
       } catch (error) {
         console.error('Failed to restock:', error);
       }
-    } else if (quantity !== null) {
-      alert('Please enter a valid number.');
     }
   };
-
 
   if (loading) return <div className="text-center mt-10 text-gray-600">Loading Dashboard...</div>;
 

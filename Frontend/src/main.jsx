@@ -4,13 +4,16 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
 import { AuthProvider } from './context/AuthContext.jsx';
-import { CartProvider } from './context/CartContext.jsx'; // Import CartProvider
+import { CartProvider } from './context/CartContext.jsx';
+import { CacheProvider } from './context/CacheContext.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
-      <CartProvider> {/* Add CartProvider here */}
-        <App />
+      <CartProvider>
+        <CacheProvider>
+          <App />
+        </CacheProvider>
       </CartProvider>
     </AuthProvider>
   </React.StrictMode>

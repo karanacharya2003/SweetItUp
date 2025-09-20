@@ -3,24 +3,24 @@ import React, { useState, useEffect } from 'react';
 import { getAllSweets, searchSweets, getCategories } from '../api/sweets';
 import SweetCard from '../components/SweetCard';
 import { useDebounce } from '../hooks/useDebounce';
+import { useCache } from '../context/CacheContext.jsx';
 
 const ShopPage = () => {
+  const { cacheKey } = useCache();
   const [sweets, setSweets] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Search & Filter State
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
 
-  // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [cache, setCache] = useState({});
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
-
+  
   useEffect(() => {
-    // Fetch categories when component mounts
     const fetchCategories = async () => {
       try {
         const response = await getCategories();
@@ -33,7 +33,19 @@ const ShopPage = () => {
   }, []);
 
   useEffect(() => {
+    setCache({});
+    setCurrentPage(1);
+  }, [cacheKey]);
+
+  useEffect(() => {
     const fetchSweetsData = async () => {
+      const cacheKey = `${debouncedSearchQuery}-${currentPage}-${selectedCategory}`;
+      if (cache[cacheKey]) {
+        setSweets(cache[cacheKey].sweets);
+        setTotalPages(cache[cacheKey].totalPages);
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       try {
         let response;
@@ -46,8 +58,12 @@ const ShopPage = () => {
 
         response = await searchSweets(queryParams, currentPage, limit);
         
-        setSweets(response.data.sweets || []);
-        setTotalPages(response.data.totalPages || 1);
+        const sweetsData = response.data.sweets || [];
+        const totalPagesData = response.data.totalPages || 1;
+
+        setSweets(sweetsData);
+        setTotalPages(totalPagesData);
+        setCache(prevCache => ({ ...prevCache, [cacheKey]: { sweets: sweetsData, totalPages: totalPagesData } }));
 
       } catch (error) {
         console.error("Failed to fetch sweets:", error);
@@ -57,14 +73,14 @@ const ShopPage = () => {
       }
     };
     fetchSweetsData();
-  }, [debouncedSearchQuery, currentPage, selectedCategory]);
+  }, [debouncedSearchQuery, currentPage, selectedCategory, cache]);
 
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= totalPages) setCurrentPage(newPage);
   };
   
   const handleCategoryClick = (category) => {
-    setCurrentPage(1); // Reset to first page on new category selection
+    setCurrentPage(1);
     setSelectedCategory(category);
   };
 
@@ -75,7 +91,6 @@ const ShopPage = () => {
         <p className="text-lg text-gray-600 mt-2">Find your next favorite treat.</p>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-8">
         <div className="relative flex-grow">
           <input 
@@ -99,7 +114,6 @@ const ShopPage = () => {
           </select>
         </div>
       </div>
-
 
       {loading ? (
         <p className="text-center mt-8 text-gray-600">Loading sweets...</p>
