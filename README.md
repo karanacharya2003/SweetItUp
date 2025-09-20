@@ -13,7 +13,7 @@ Password: kri
 
 (PS: If the Login fails, Render free account is to blame.)  
 
-**Drive Link of Working Website:** [Download/Wathc](https://drive.google.com/file/d/1Shef1ZUwLYMSSa7FmqQCfBvVpRzIEbJ9/view?usp=sharing)  
+**Drive Link of Working Website:** [Download/Watch](https://drive.google.com/file/d/1Shef1ZUwLYMSSa7FmqQCfBvVpRzIEbJ9/view?usp=sharing)  
 
 
 
