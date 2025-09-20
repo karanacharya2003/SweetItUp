@@ -152,13 +152,14 @@ The frontend is a modern **React application built with Vite**. The `src` direct
 
 /Frontend
 └── src/
-├── api/ # Centralizes all Axios API calls to the backend.
-├── components/ # Reusable React components (Navbar, SweetCard, etc.).
-├── context/ # Global state management using React Context.
-├── hooks/ # Custom React hooks (e.g., useDebounce).
-├── pages/ # Top-level components for each page/route.
-├── App.jsx # Main application component with routing.
-└── main.jsx # Entry point of the React application.
+    ├── api/          # Centralizes all Axios API calls to the backend
+    ├── components/   # Reusable React components (Navbar, SweetCard, etc.)
+    ├── context/      # Global state management using React Context
+    ├── hooks/        # Custom React hooks (e.g., useDebounce)
+    ├── pages/        # Top-level components for each page/route
+    ├── App.jsx       # Main application component with routing
+    └── main.jsx      # Entry point of the React application
+
 
 ---
 
@@ -168,12 +169,13 @@ The backend is a **Node.js + Express** application using **Sequelize ORM**. It f
 
 /Backend
 └── src/
-├── controllers/ # Contains the business logic for each route.
-├── middleware/ # Authentication and authorization middleware.
-├── models/ # Sequelize model definitions for database tables.
-├── routes/ # Express router definitions for all API endpoints.
-├── config.js # Central configuration for database and JWT.
-└── index.js # Entry point of the Node.js server.
+    ├── controllers/  # Business logic for each route
+    ├── middleware/   # Authentication & authorization middleware
+    ├── models/       # Sequelize model definitions for DB tables
+    ├── routes/       # Express router definitions for API endpoints
+    ├── config.js     # Central configuration (DB + JWT secrets)
+    └── index.js      # Entry point of the Node.js server
+
 
 ---
 
