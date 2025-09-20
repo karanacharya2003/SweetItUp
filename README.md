@@ -125,15 +125,9 @@ This project was developed with the assistance of an **AI programming partner**,
   * **JWT mismatches** during authentication.
   * **Frontend crashes and unexpected behavior** with clear explanations and fixes.
 
-### 🔹 4. Design & UI/UX Overhaul
 
-* Translated design inspiration and high-level ideas into:
 
-  * **Playful and modern UI** using **Tailwind CSS**.
-  * **Consistent color schemes, typography, and layouts**.
-  * **Custom UI components** for better usability.
-
-### 🔹 5. Code Refinement & Best Practices
+### 🔹 4. Code Refinement & Best Practices
 
 * Suggested improvements for **clarity and maintainability**.
 * Proposed the use of a **shared CacheContext** to elegantly handle a **state synchronization bug**.
@@ -150,8 +144,37 @@ This project was developed with the assistance of an **AI programming partner**,
 
 ---
 
-## 📜 License
+## 📂 Project Structure (File Walkthrough)
 
-This project is open-source and available under the **MIT License**.
+### 🖼 Frontend (`/Frontend`)
+
+The frontend is a modern **React application built with Vite**. The `src` directory is organized by **feature-based structure** for clarity and maintainability.
+
+/Frontend
+└── src/
+├── api/ # Centralizes all Axios API calls to the backend.
+├── components/ # Reusable React components (Navbar, SweetCard, etc.).
+├── context/ # Global state management using React Context.
+├── hooks/ # Custom React hooks (e.g., useDebounce).
+├── pages/ # Top-level components for each page/route.
+├── App.jsx # Main application component with routing.
+└── main.jsx # Entry point of the React application.
+
+---
+
+### ⚙️ Backend (`/Backend`)
+
+The backend is a **Node.js + Express** application using **Sequelize ORM**. It follows the **MVC (Model-View-Controller)** design pattern for scalability and maintainability.
+
+/Backend
+└── src/
+├── controllers/ # Contains the business logic for each route.
+├── middleware/ # Authentication and authorization middleware.
+├── models/ # Sequelize model definitions for database tables.
+├── routes/ # Express router definitions for all API endpoints.
+├── config.js # Central configuration for database and JWT.
+└── index.js # Entry point of the Node.js server.
+
+---
 
 
